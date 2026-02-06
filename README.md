@@ -15,7 +15,7 @@ Set up a virtual environment and install dependencies:
 
 ```bash
 python3 -m venv my_env
-my_env/source/activate
+source my_env/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
@@ -46,8 +46,8 @@ TartanHacks @ Carnegie Mellon University. February 6-7, 2026.
 
 Complete by: **Friday, 10:00pm**
 
-- [ ] Create git repository
-- [ ] Set up Flask app structure
+- [x] Create git repository
+- [x] Set up Flask app structure
 - [ ] Finalize and implement database schema
 - [ ] Integrate front end UI into app and ensure every button
       directs to the correct page
