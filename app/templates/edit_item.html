@@ -546,14 +546,12 @@
                         myItems[idx] = result.item;
                     }
                     renderSidebar();
-                    alert('Item updated successfully!');
                 } else {
                     var error = await response.json();
-                    alert('Error: ' + (error.error || 'Failed to update item'));
+                    console.error('Error:', error.error || 'Failed to update item');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to update item. Please try again.');
             }
         });
 
