@@ -374,15 +374,13 @@
                 });
                 
                 if (response.ok) {
-                    alert('Listing created successfully!');
                     window.location.href = '/';
                 } else {
                     const error = await response.json();
-                    alert('Error: ' + (error.error || 'Failed to create listing'));
+                    console.error('Error:', error.error || 'Failed to create listing');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to create listing. Please try again.');
             }
         });
 
