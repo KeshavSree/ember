@@ -207,6 +207,11 @@ function highlightMarker(lat, lng) {
 // Fetch items and locations from your Flask API
 async function loadMapItems() {
     try {
+        // Clear any existing markers so deleted locations don't persist
+        Object.values(markersByKey).forEach(m => map.removeLayer(m));
+        markersByKey = {};
+        _highlightedMarkerKey = null;
+
         const response = await fetch('/api/items');
         const items = await response.json();
         allItems = items;
