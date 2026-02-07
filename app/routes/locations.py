@@ -72,9 +72,20 @@ def create_saved_location():
 @bp.route('/api/saved-locations/<int:location_id>', methods=['DELETE'])
 @login_required
 def delete_saved_location(location_id):
-    """Delete a saved location"""
-    success = current_user.remove_saved_location(location_id)
-    if success:
-        db.session.commit()
-        return jsonify({'message': 'Location deleted'}), 200
-    return jsonify({'error': 'Location not found'}), 404
+    """Delete a saved location and its matching Location record (cascade deletes items)"""
+    saved = SavedLocation.query.filter_by(id=location_id, user_id=current_user.id).first()
+    if not saved:
+        return jsonify({'error': 'Location not found'}), 404
+
+    lat, lng = saved.latitude, saved.longitude
+
+    # Remove the saved location
+    db.session.delete(saved)
+
+    # Also remove the matching Location record (cascade deletes its items)
+    matching_location = Location.query.filter_by(latitude=lat, longitude=lng).first()
+    if matching_location:
+        db.session.delete(matching_location)
+
+    db.session.commit()
+    return jsonify({'message': 'Location deleted'}), 200

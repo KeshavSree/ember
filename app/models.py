@@ -125,7 +125,7 @@ class Location(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
-    items = db.relationship('Item', backref='location', lazy=True)
+    items = db.relationship('Item', backref='location', lazy=True, cascade='all, delete-orphan')
 
 
 class SavedLocation(db.Model):
