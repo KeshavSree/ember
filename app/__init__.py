@@ -19,6 +19,9 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 db.init_app(app)
 login_manager.init_app(app)
 
+import mimetypes
+mimetypes.add_type('application/vnd.pmtiles', '.pmtiles')
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -84,6 +87,12 @@ def serve_manifest():
 @app.route('/uploads/<filename>')
 def serve_upload(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/static/maps/<path:filename>')
+def serve_pmtiles(filename):
+    # 'conditional=True' tells Flask to support HTTP Range Requests
+    return send_from_directory(os.path.join(app.root_path, 'static/maps'), filename, conditional=True)
 
 
 if __name__ == '__main__':

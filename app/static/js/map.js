@@ -1,3 +1,5 @@
+const PGH_MAP_URL = "/static/maps/pittsburgh-pa.pmtiles";
+
 // Restore saved map position or use defaults
 const savedMap = JSON.parse(localStorage.getItem('emberMapView'));
 const mapCenter = savedMap ? [savedMap.lat, savedMap.lng] : [40.4406, -79.9959];
@@ -23,10 +25,90 @@ map.on('moveend', function() {
     localStorage.setItem('emberMapView', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() }));
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-}).addTo(map);
+const layer = protomapsL.leafletLayer({
+    url: PGH_MAP_URL,
+    paint_rules: [
+        {
+            dataLayer: 'water',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#a2daf2'
+            })
+        },
+        {
+            dataLayer: 'park',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#d8e8c8'
+            })
+        },
+        {
+            dataLayer: 'landuse',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#e0ebd4'
+            })
+        },
+        {
+            dataLayer: 'building',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#d9d9d9',
+                stroke: '#c0c0c0',
+                width: 0.5
+            })
+        },
+        {
+            dataLayer: 'transportation',
+            symbolizer: new protomapsL.LineSymbolizer({
+                color: '#ffffff',
+                width: (z) => (z < 13 ? 1 : z < 15 ? 3 : 6)
+            })
+        }
+    ],
+    label_rules: [
+        {
+            dataLayer: 'place',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['name'],
+                fill: '#333333',
+                font: '600 16px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'transportation_name',
+            symbolizer: new protomapsL.LineLabelSymbolizer({
+                labelProps: ['name'],
+                fill: '#444444',
+                font: '12px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'poi',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['name'],
+                fill: '#666666',
+                font: '11px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'housenumber',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['housenumber'],
+                fill: '#888888',
+                font: '9px sans-serif'
+            })
+        }
+    ]
+});
+
+layer.addTo(map);
+
+// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//     maxZoom: 19,
+//     attribution: '© OpenStreetMap'
+// }).addTo(map);
+
+// const layer = L.tileLayer(`pmtiles://${PGH_MAP_URL}`, {
+//     attribution: '&copy; OpenStreetMap'
+// });
+// layer.addTo(map);
 
 const userIcon = L.divIcon({
     className: 'user-location-marker',
