@@ -19,8 +19,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const userIcon = L.divIcon({
     className: 'user-location-marker',
     html: '<div class="user-location-pulse" aria-hidden="true"></div>',
-    iconSize: [18, 18],
-    iconAnchor: [9, 9]
+    iconSize: [80, 80],
+    iconAnchor: [40, 40]
 });
 
 let userMarker = null;
@@ -57,7 +57,7 @@ function requestUserLocation() {
     );
 }
 
-// Fetch items from your Flask API
+// Fetch items and locations from your Flask API
 async function loadMapItems() {
     try {
         const response = await fetch('/api/items');
@@ -85,6 +85,17 @@ async function loadMapItems() {
             `).join('<hr>');
             marker.bindPopup(`<h3>${loc.location_name}</h3>${itemsHtml}`);
         });
+
+        // Also load standalone locations (no items yet)
+        const locResponse = await fetch('/api/locations');
+        const allLocations = await locResponse.json();
+        allLocations.forEach(loc => {
+            const key = `${loc.latitude},${loc.longitude}`;
+            if (!locations[key]) {
+                L.marker([loc.latitude, loc.longitude]).addTo(map)
+                    .bindPopup(`<h3>${loc.name || loc.address}</h3>`);
+            }
+        });
     } catch (err) {
         console.log("Map loading offline mode - showing cached data");
     }
@@ -94,7 +105,3 @@ loadMapItems();
 
 requestUserLocation();
 
-map.on('dblclick', (event) => {
-    const coords = event.latlng;
-    L.marker(coords).addTo(map);
-});

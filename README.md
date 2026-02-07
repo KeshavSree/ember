@@ -1,4 +1,4 @@
-# Ember
+# ember
 
 A progressive web app for decentralized resource distribution during
 natural disaster relief.

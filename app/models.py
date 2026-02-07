@@ -75,7 +75,7 @@ class Category(db.Model): # Optional: If you want a strict list
 
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    
+
     name = db.Column(db.String(100))
     address = db.Column(db.String(100), nullable=False)
 

@@ -64,17 +64,49 @@ nav a {
 }
 
 .user-location-marker {
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    border: none !important;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .user-location-pulse {
     width: 14px;
     height: 14px;
-    background: #2d9cdb;
-    border: 2px solid #ffffff;
+    background: #007AFF;
+    border: 2.5px solid #ffffff;
     border-radius: 50%;
-    box-shadow: 0 0 0 6px rgba(45, 156, 219, 0.2);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.user-location-pulse::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: rgba(0, 122, 255, 0.25);
+    border-radius: 50%;
+    animation: pulse-ring 3s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        width: 14px;
+        height: 14px;
+        opacity: 0.6;
+    }
+    100% {
+        width: 80px;
+        height: 80px;
+        opacity: 0;
+    }
 }
 
 .auth-container {
