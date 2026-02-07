@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ember - Create Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen relative overflow-hidden">
+    <!-- Background Gradient -->
+    <div class="fixed inset-0 z-0 bg-gradient-to-br from-blue-300 via-teal-200 to-green-300"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Top Navigation -->
+        <nav class="p-6 flex items-center justify-between">
+            <div class="bg-white/90 backdrop-blur-md rounded-full px-5 py-3 flex items-center gap-3 shadow-lg">
+                <div class="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                </div>
+                <span class="text-xl font-semibold text-gray-800">Ember</span>
+            </div>
+
+            <button class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex items-center justify-center p-6">
+            <!-- Create Account Card -->
+            <div class="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10">
+                <!-- Logo -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Create Account</h1>
+                <p class="text-gray-600 text-center mb-8">Join your local borrowing community</p>
+
+                <!-- Form -->
+                <form class="space-y-5">
+                    <!-- Username Field -->
+                    <div>
+                        <label class="block text-gray-800 font-semibold mb-2 text-sm">Username</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Choose a username"
+                                class="w-full pl-12 pr-4 py-3.5 bg-white/70 backdrop-blur-sm border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Phone Number Field -->
+                    <div>
+                        <label class="block text-gray-800 font-semibold mb-2 text-sm">Phone Number</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="tel"
+                                placeholder="+1 (555) 000-0000"
+                                class="w-full pl-12 pr-4 py-3.5 bg-white/70 backdrop-blur-sm border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label class="block text-gray-800 font-semibold mb-2 text-sm">Password</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                placeholder="••••••••"
+                                class="w-full pl-12 pr-12 py-3.5 bg-white/70 backdrop-blur-sm border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                            >
+                            <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div>
+                        <label class="block text-gray-800 font-semibold mb-2 text-sm">Confirm Password</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                placeholder="••••••••"
+                                class="w-full pl-12 pr-4 py-3.5 bg-white/70 backdrop-blur-sm border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Sign Up Button -->
+                    <button
+                        type="submit"
+                        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-2xl transition-colors shadow-lg mt-6"
+                    >
+                        Sign Up
+                    </button>
+                </form>
+
+                <!-- Sign In Link -->
+                <p class="text-center mt-6 text-gray-600 text-sm">
+                    Already have an account?
+                    <a href="#" class="text-orange-500 font-semibold hover:text-orange-600">Sign In</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Links -->
+        <div class="p-6 flex items-center justify-center gap-6">
+            <a href="#" class="text-gray-600 text-sm font-medium hover:text-gray-800 uppercase tracking-wide">Privacy</a>
+            <a href="#" class="text-gray-600 text-sm font-medium hover:text-gray-800 uppercase tracking-wide">Terms</a>
+            <a href="#" class="text-gray-600 text-sm font-medium hover:text-gray-800 uppercase tracking-wide">Safety</a>
+        </div>
+    </div>
+</body>
+</html>
