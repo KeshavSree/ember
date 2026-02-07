@@ -646,11 +646,8 @@
             })
             .then((savedLocation) => {
                 closeModal();
-                
-                // Show success message
-                alert('Location saved to your saved locations!');
-                
-                // Optionally: Add a marker on the map for visual feedback
+
+                // Add a marker on the map for visual feedback
                 const newMarker = L.marker([data.latitude, data.longitude]).addTo(map);
                 newMarker.bindTooltip('<strong>' + (data.name || data.address) + '</strong><br>' + (data.address || ''));
                 newMarker.on('click', function() {
@@ -663,7 +660,7 @@
             })
             .catch(err => {
                 console.error('Failed to add location:', err);
-                alert('Failed to save location. Please make sure you are logged in.');
+                console.error('Failed to save location.');
             });
         });
 
