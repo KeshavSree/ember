@@ -106,6 +106,7 @@ class Item(db.Model):
             'location_name': self.location.name,
             'location_id': self.location_id,
             'owner_name': self.owner.username,
+            'owner_phone': self.owner.phone_number,
             'picture': self.picture,
             'pickup_instructions': self.pickup_instructions
         }
