@@ -167,6 +167,16 @@ def serve_upload(filename):
 
 @app.route('/static/maps/<path:filename>')
 def serve_pmtiles(filename):
+    range_header = request.headers.get('Range', None)
+    file_path = os.path.join(app.root_path, 'static', 'maps', filename)
+    file_size = os.path.getsize(file_path)
+    if range_header:
+        byte_range = range_header.replace('bytes=', '').split('-')
+        start = int (byte_range[0])
+        end = int (byte_range[1]) if byte_range[1] else file_size - 1
+        print(end - start + 1)
+    else:
+        print(file_size)
     return send_from_directory(os.path.join(app.root_path, 'static', 'maps'), filename, conditional=True)
 
 
