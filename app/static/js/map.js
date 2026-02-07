@@ -29,6 +29,39 @@ const userIcon = L.divIcon({
     iconAnchor: [40, 40]
 });
 
+// Campfire SVG icons for location markers
+const campfireSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44" height="44">
+  <path d="M22 4c-2 4-8 9-8 16a8 8 0 0 0 16 0c0-7-6-12-8-16z" fill="#F97316" stroke="#C2410C" stroke-width="1.5"/>
+  <path d="M22 10c-1.2 2.5-4 5.5-4 9a4 4 0 0 0 8 0c0-3.5-2.8-6.5-4-9z" fill="#FCD34D"/>
+  <line x1="10" y1="34" x2="34" y2="40" stroke="#92400E" stroke-width="3" stroke-linecap="round"/>
+  <line x1="34" y1="34" x2="10" y2="40" stroke="#92400E" stroke-width="3" stroke-linecap="round"/>
+</svg>`;
+
+const campfireEmptySvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44" height="44">
+  <path d="M22 4c-2 4-8 9-8 16a8 8 0 0 0 16 0c0-7-6-12-8-16z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="1.5"/>
+  <path d="M22 10c-1.2 2.5-4 5.5-4 9a4 4 0 0 0 8 0c0-3.5-2.8-6.5-4-9z" fill="#E5E7EB"/>
+  <line x1="10" y1="34" x2="34" y2="40" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="34" y1="34" x2="10" y2="40" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round"/>
+</svg>`;
+
+const campfireIcon = L.divIcon({
+    className: 'ember-marker',
+    html: campfireSvg,
+    iconSize: [44, 44],
+    iconAnchor: [22, 40],
+    popupAnchor: [0, -40],
+    tooltipAnchor: [0, -34]
+});
+
+const campfireEmptyIcon = L.divIcon({
+    className: 'ember-marker',
+    html: campfireEmptySvg,
+    iconSize: [44, 44],
+    iconAnchor: [22, 40],
+    popupAnchor: [0, -40],
+    tooltipAnchor: [0, -34]
+});
+
 let userMarker = null;
 let userLat = null;
 let userLng = null;
@@ -92,7 +125,7 @@ async function loadMapItems() {
 
         // Create one marker per location with tooltip and click handler
         Object.values(locations).forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+            const marker = L.marker([loc.lat, loc.lng], { icon: campfireIcon }).addTo(map);
             const previewNames = loc.items.slice(0, 3).map(i => i.name).join(', ');
             const extra = loc.items.length > 3 ? ` +${loc.items.length - 3} more` : '';
             const tooltipHtml = `<strong>${loc.location_name}</strong><br>${loc.address || ''}<br><em>${previewNames}${extra}</em>`;
@@ -108,7 +141,7 @@ async function loadMapItems() {
         allLocations.forEach(loc => {
             const key = `${loc.latitude},${loc.longitude}`;
             if (!locations[key]) {
-                const standaloneMarker = L.marker([loc.latitude, loc.longitude]).addTo(map);
+                const standaloneMarker = L.marker([loc.latitude, loc.longitude], { icon: campfireEmptyIcon }).addTo(map);
                 standaloneMarker.bindTooltip(`<strong>${loc.name || loc.address}</strong><br>${loc.address || ''}`);
                 standaloneMarker.on('click', () => {
                     if (typeof showLocationItems === 'function') {
