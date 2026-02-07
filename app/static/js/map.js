@@ -148,6 +148,8 @@ let userMarker = null;
 let userLat = null;
 let userLng = null;
 let allItems = [];
+let markersByKey = {}; // lookup markers by "lat,lng" key
+let _highlightedMarkerKey = null; // track currently highlighted marker
 
 function setUserLocation(lat, lng) {
     userLat = lat;
@@ -186,6 +188,22 @@ function requestUserLocation() {
     );
 }
 
+// Highlight a marker by scaling it up; unhighlight the previous one
+function highlightMarker(lat, lng) {
+    // Unhighlight previous
+    if (_highlightedMarkerKey && markersByKey[_highlightedMarkerKey]) {
+        var prevEl = markersByKey[_highlightedMarkerKey].getElement();
+        if (prevEl) prevEl.classList.remove('ember-marker-highlight');
+    }
+    // Highlight new
+    var key = lat + ',' + lng;
+    _highlightedMarkerKey = key;
+    if (markersByKey[key]) {
+        var el = markersByKey[key].getElement();
+        if (el) el.classList.add('ember-marker-highlight');
+    }
+}
+
 // Fetch items and locations from your Flask API
 async function loadMapItems() {
     try {
@@ -208,6 +226,8 @@ async function loadMapItems() {
         // Create one marker per location with tooltip and click handler
         Object.values(locations).forEach(loc => {
             const marker = L.marker([loc.lat, loc.lng], { icon: campfireIcon }).addTo(map);
+            const key = `${loc.lat},${loc.lng}`;
+            markersByKey[key] = marker;
             const previewNames = loc.items.slice(0, 3).map(i => i.name).join(', ');
             const extra = loc.items.length > 3 ? ` +${loc.items.length - 3} more` : '';
             const tooltipHtml = `<strong>${loc.location_name}</strong><br>${loc.address || ''}<br><em>${previewNames}${extra}</em>`;
@@ -224,6 +244,7 @@ async function loadMapItems() {
             const key = `${loc.latitude},${loc.longitude}`;
             if (!locations[key]) {
                 const standaloneMarker = L.marker([loc.latitude, loc.longitude], { icon: campfireEmptyIcon }).addTo(map);
+                markersByKey[key] = standaloneMarker;
                 standaloneMarker.bindTooltip(`<strong>${loc.name || loc.address}</strong><br>${loc.address || ''}`);
                 standaloneMarker.on('click', () => {
                     if (typeof showLocationItems === 'function') {
