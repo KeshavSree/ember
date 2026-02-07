@@ -1,19 +1,77 @@
-<!DOCTYPE html>
+In <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ember - Tool Sharing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/main.css" />
 </head>
 <body class="font-sans antialiased">
     <!-- Background Map Image -->
-    <div class="fixed inset-0 bg-gradient-to-br from-blue-200 via-green-100 to-blue-300"></div>
+    <div id="map" class="fixed inset-0 w-full h-full z-0"></div>
+
+    <!-- Location Selection Banner -->
+    <div id="selectBanner" class="hidden fixed top-0 left-0 right-0 z-[1000] flex justify-center pt-4 pointer-events-none">
+        <div class="bg-white rounded-full px-8 py-3 shadow-lg pointer-events-auto">
+            <span class="font-semibold text-gray-800 text-lg">Select a location</span>
+        </div>
+    </div>
+
+    <!-- Crosshair Overlay -->
+    <div id="crosshairOverlay" class="hidden fixed inset-0 z-[999] pointer-events-none">
+        <div id="crosshairH" class="absolute left-0 right-0 h-px bg-orange-500 opacity-70"></div>
+        <div id="crosshairV" class="absolute top-0 bottom-0 w-px bg-orange-500 opacity-70"></div>
+    </div>
+
+    <!-- Crosshair Click Catcher (captures click on the map area) -->
+    <div id="crosshairCatcher" class="hidden fixed inset-0 z-[998] cursor-crosshair"></div>
+
+    <!-- Add Location Modal -->
+    <div id="addItemModal" class="hidden fixed inset-0 z-[1001] flex items-center justify-center">
+        <div class="bg-white/95 backdrop-blur rounded-3xl shadow-xl w-full max-w-md p-6 relative">
+            <button id="modalClose" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <div class="flex items-center gap-2 mb-6">
+                <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">Add Location</h2>
+            </div>
+            <form id="addLocationForm" class="space-y-4">
+                <div>
+                    <label for="locName" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input id="locName" name="name" type="text" placeholder="e.g. My Garage" class="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 text-gray-800 placeholder-gray-400 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label for="locAddress" class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-orange-500">*</span></label>
+                    <input id="locAddress" name="address" type="text" required placeholder="123 Main St" class="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 text-gray-800 placeholder-gray-400 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label for="locLat" class="block text-sm font-medium text-gray-700 mb-1">Latitude <span class="text-orange-500">*</span></label>
+                        <input id="locLat" name="latitude" type="number" step="any" required readonly class="w-full bg-gray-50 rounded-xl border border-gray-200 px-4 py-3 text-gray-600 outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <label for="locLng" class="block text-sm font-medium text-gray-700 mb-1">Longitude <span class="text-orange-500">*</span></label>
+                        <input id="locLng" name="longitude" type="number" step="any" required readonly class="w-full bg-gray-50 rounded-xl border border-gray-200 px-4 py-3 text-gray-600 outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors">Add Location</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Main Content -->
-    <div class="relative min-h-screen">
+    <div class="relative min-h-screen pointer-events-none">
         <!-- Top Navigation Bar -->
-        <div class="p-4 flex items-center justify-between gap-4">
+        <div class="p-4 flex items-center justify-between gap-4 pointer-events-auto">
             <!-- Logo/Home Button -->
             <div class="bg-white rounded-full px-6 py-3 flex items-center gap-3 shadow-lg">
                 <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
@@ -47,7 +105,7 @@
             <!-- Right group: Add, My Items, Profile -->
             <div class="flex items-center gap-2">
                 <!-- Add Button -->
-                <button class="w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center hover:bg-orange-600">
+                <button id="addBtn" class="w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center hover:bg-orange-600">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -71,7 +129,7 @@
         </div>
 
         <!-- Nearby Items Section -->
-        <div class="px-4 pt-4 max-w-[460px] h-[calc(100vh-8.5rem)]">
+        <div class="px-4 pt-4 max-w-[460px] h-[calc(100vh-8.5rem)] pointer-events-auto">
             <div class="bg-white/95 backdrop-blur rounded-3xl shadow-xl p-6 h-full overflow-y-auto">
                 <!-- Section Header -->
                 <div class="flex items-center justify-between mb-6">
@@ -171,50 +229,111 @@
             </div>
         </div>
 
-        <!-- Map Markers (decorative) -->
-        <div class="absolute top-1/3 right-1/4 w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"/>
-            </svg>
-        </div>
-
-        <div class="absolute bottom-1/3 right-1/3 w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"/>
-            </svg>
-        </div>
-
-        <div class="absolute bottom-1/2 right-1/4 w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"/>
-            </svg>
-        </div>
-
-        <!-- Map Controls -->
-        <div class="fixed bottom-8 right-8 flex flex-col gap-2">
-            <button class="w-12 h-12 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-            </button>
-            <button class="w-12 h-12 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/>
-                </svg>
-            </button>
-            <button class="w-12 h-12 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 mt-2">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                </svg>
-            </button>
-        </div>
-
         <!-- Footer -->
-        <div class="fixed bottom-4 left-4 text-xs text-gray-600 flex gap-4">
+        <div class="fixed bottom-4 left-4 text-xs text-gray-600 flex gap-4 pointer-events-auto">
             <span>© 2024 Ember</span>
             <a href="#" class="hover:text-gray-800">Safety</a>
             <a href="#" class="hover:text-gray-800">Terms</a>
         </div>
     </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script>
+    (function() {
+        const addBtn = document.getElementById('addBtn');
+        const banner = document.getElementById('selectBanner');
+        const overlay = document.getElementById('crosshairOverlay');
+        const catcher = document.getElementById('crosshairCatcher');
+        const hLine = document.getElementById('crosshairH');
+        const vLine = document.getElementById('crosshairV');
+        const modal = document.getElementById('addItemModal');
+        const modalClose = document.getElementById('modalClose');
+        const form = document.getElementById('addLocationForm');
+        const latInput = document.getElementById('locLat');
+        const lngInput = document.getElementById('locLng');
+
+        function enterSelectionMode() {
+            banner.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            catcher.classList.remove('hidden');
+        }
+
+        function exitSelectionMode() {
+            banner.classList.add('hidden');
+            overlay.classList.add('hidden');
+            catcher.classList.add('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            form.reset();
+        }
+
+        addBtn.addEventListener('click', function() {
+            enterSelectionMode();
+        });
+
+        // Track mouse for crosshair lines
+        catcher.addEventListener('mousemove', function(e) {
+            hLine.style.top = e.clientY + 'px';
+            vLine.style.left = e.clientX + 'px';
+        });
+
+        // Click to place — convert pixel to lat/lng, populate form, show modal
+        catcher.addEventListener('click', function(e) {
+            exitSelectionMode();
+
+            const mapEl = document.getElementById('map');
+            const rect = mapEl.getBoundingClientRect();
+            const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
+            const latlng = map.containerPointToLatLng(point);
+
+            latInput.value = latlng.lat.toFixed(6);
+            lngInput.value = latlng.lng.toFixed(6);
+
+            modal.classList.remove('hidden');
+        });
+
+        // Close modal
+        modalClose.addEventListener('click', closeModal);
+
+        // Form submit
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('locName').value,
+                address: document.getElementById('locAddress').value,
+                latitude: parseFloat(latInput.value),
+                longitude: parseFloat(lngInput.value)
+            };
+
+            fetch('/api/locations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(() => {
+                closeModal();
+                // Drop a marker at the new location
+                L.marker([data.latitude, data.longitude]).addTo(map)
+                    .bindPopup('<h3>' + (data.name || data.address) + '</h3>');
+            })
+            .catch(err => console.error('Failed to add location:', err));
+        });
+
+        // ESC to cancel selection mode or close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (!catcher.classList.contains('hidden')) {
+                    exitSelectionMode();
+                } else if (!modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            }
+        });
+    })();
+    </script>
 </body>
 </html>
