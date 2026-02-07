@@ -24,7 +24,10 @@ def load_user(user_id):
 
 @app.route('/')
 def main():
-    return render_template('main.html')
+    # return render_template('create_account.html')
+    return render_template('login_new.html')
+    # return render_template('homepage.html')
+    # return render_template('main.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
