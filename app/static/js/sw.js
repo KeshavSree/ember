@@ -36,26 +36,56 @@ if (workbox) {
         })
     );
 
-    // 3. Strategy B: Map Tiles (OpenStreetMap)
-    // Cache-first: Maps don't change often, so prioritize speed/offline.
     workbox.routing.registerRoute(
-        ({url}) => url.host.includes('tile.openstreetmap.org')|| 
-                   url.host.includes('stadiamaps.com') || 
-                   url.host.includes('cartocdn.com'),
-        new workbox.strategies.CacheFirst({
-            cacheName: 'map-cache-v3',
+        new RegExp('/api/locations'),
+        new workbox.strategies.NetworkFirst({
+            cacheName: 'locations-cache-v3',
             plugins: [
                 new workbox.cacheableResponse.CacheableResponsePlugin({
                     statuses: [0, 200]
-                }),
-                new workbox.expiration.ExpirationPlugin({
-                    maxEntries: 50, // Limit cache size so we don't clog the phone
-                    maxAgeSeconds: 24 * 60 * 60, // 30 Days
-                    purgeOnQuotaError: true,
-                }),
-            ],
+                })
+            ]
         })
     );
+
+    // 3. Strategy B: Map Tiles (OpenStreetMap)
+    // Cache-first: Maps don't change often, so prioritize speed/offline.
+    // workbox.routing.registerRoute(
+    //     ({url}) => url.host.includes('tile.openstreetmap.org') || 
+    //                url.host.includes('stadiamaps.com') || 
+    //                url.host.includes('cartocdn.com'),
+    //     new workbox.strategies.CacheFirst({
+    //         cacheName: 'map-cache-v3',
+    //         plugins: [
+    //             new workbox.cacheableResponse.CacheableResponsePlugin({
+    //                 statuses: [0, 200]
+    //             }),
+    //             new workbox.expiration.ExpirationPlugin({
+    //                 maxEntries: 50, // Limit cache size so we don't clog the phone
+    //                 maxAgeSeconds: 24 * 60 * 60, // 30 Days
+    //                 purgeOnQuotaError: true,
+    //             }),
+    //         ],
+    //     })
+    // );
+
+    // workbox.routing.registerRoute(
+    //   ({url}) => url.pathname.endsWith('.pmtiles'),
+    //   new workbox.strategies.CacheFirst({
+    //     cacheName: 'map-cache',
+    //     plugins: [
+    //       // This is the magic: it allows the cache to handle 206 Partial Content
+    //       new workbox.rangeRequests.RangeRequestsPlugin(),
+    //       new workbox.cacheableResponse.CacheableResponsePlugin({
+    //         statuses: [0, 200, 206], // Cache successful and partial responses
+    //       }),
+    //       new workbox.expiration.ExpirationPlugin({
+    //         maxEntries: 1, // You only need the one Pittsburgh file
+    //         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+    //       }),
+    //     ],
+    //   })
+    // );
 
     // 4. Strategy C: Static Images (User uploads)
     workbox.routing.registerRoute(
@@ -67,3 +97,15 @@ if (workbox) {
 } else {
     console.log("Workbox failed to load");
 }
+
+// At the bottom of sw.js
+self.addEventListener('fetch', (event) => {
+    // If we are offline and it's not in the cache, stop the error
+    if (!navigator.onLine && !event.request.url.includes('localhost')) {
+        event.respondWith(
+            caches.match(event.request).then((response) => {
+                return response || new Response('', { status: 404, statusText: 'Offline' });
+            })
+        );
+    }
+});

@@ -23,6 +23,87 @@ L.control.zoom({
     position: 'bottomright'
 }).addTo(map);
 
+// Save map position on every move/zoom
+map.on('moveend', function() {
+    const c = map.getCenter();
+    localStorage.setItem('emberMapView', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() }));
+});
+
+const layer = protomapsL.leafletLayer({
+    url: PGH_MAP_URL,
+    paint_rules: [
+        {
+            dataLayer: 'water',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#a2daf2'
+            })
+        },
+        {
+            dataLayer: 'park',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#d8e8c8'
+            })
+        },
+        {
+            dataLayer: 'landuse',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#e0ebd4'
+            })
+        },
+        {
+            dataLayer: 'building',
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: '#d9d9d9',
+                stroke: '#c0c0c0',
+                width: 0.5
+            })
+        },
+        {
+            dataLayer: 'transportation',
+            symbolizer: new protomapsL.LineSymbolizer({
+                color: '#ffffff',
+                width: (z) => (z < 13 ? 1 : z < 15 ? 3 : 6)
+            })
+        }
+    ],
+    label_rules: [
+        {
+            dataLayer: 'place',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['name'],
+                fill: '#333333',
+                font: '600 16px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'transportation_name',
+            symbolizer: new protomapsL.LineLabelSymbolizer({
+                labelProps: ['name'],
+                fill: '#444444',
+                font: '12px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'poi',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['name'],
+                fill: '#666666',
+                font: '11px sans-serif'
+            })
+        },
+        {
+            dataLayer: 'housenumber',
+            symbolizer: new protomapsL.CenteredTextSymbolizer({
+                labelProps: ['housenumber'],
+                fill: '#888888',
+                font: '9px sans-serif'
+            })
+        }
+    ]
+});
+
+layer.addTo(map);
+
 const userIcon = L.divIcon({
     className: 'user-location-marker',
     html: '<div class="user-location-pulse" aria-hidden="true"></div>',
@@ -158,7 +239,64 @@ async function loadMapItems() {
     }
 }
 
-loadMapItems();
+async function precacheMapData() {
+    const cache = await caches.open('pittsburgh-map-v2');
 
+    // Check if it's already cached
+    const cachedResponse = await cache.match(PGH_MAP_URL);
+    if (cachedResponse) {
+        console.log("📍 Offline map data found in cache.");
+        return;
+    }
+
+    const download = confirm("Would you like to download map data for offline access?");
+
+    if (download) {
+        console.log("📥 Starting 60MB background download of Pittsburgh map...");
+        
+        try {
+            const response = await fetch(PGH_MAP_URL);
+            if (!response.ok) throw new Error('Network error');
+            
+            // This puts the full 60MB into the Workbox-managed cache
+            await cache.put(PGH_MAP_URL, response);
+            console.log("✅ Map cached! You can now go fully offline.");
+        } catch (err) {
+            console.error("❌ Precache failed:", err);
+        }
+    }
+}
+
+// Call this as soon as the page loads
+precacheMapData();
+loadMapItems();
 requestUserLocation();
 
+function toggleMapInteractions() {
+    const mapElement = document.getElementById('map');
+
+    if (navigator.onLine) {
+        map.zoomControl?.enable();
+        map.doubleClickZoom.enable();
+        map.scrollWheelZoom.enable();
+        map.touchZoom.enable();
+
+        console.log("Map zoom enabled (Online)");
+        mapElement.classList.remove('map-offline-locked');
+    } else {
+        map.zoomControl?.disable();
+        map.doubleClickZoom.disable();
+        map.scrollWheelZoom.disable();
+        map.touchZoom.disable();
+        
+        console.log("Map zoom disabled (Offline)");
+        mapElement.classList.add('map-offline-locked');
+    }
+}
+
+// // 2. Listen for connection changes
+// window.addEventListener('online', toggleMapInteractions);
+// window.addEventListener('offline', toggleMapInteractions);
+
+// // 3. Run once on load to set the correct state
+// toggleMapInteractions();
