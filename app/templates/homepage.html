@@ -675,8 +675,10 @@
             .then((savedLocation) => {
                 closeModal();
 
-                // Add a marker on the map for visual feedback
-                const newMarker = L.marker([data.latitude, data.longitude]).addTo(map);
+                // Add a grayed campfire marker on the map for visual feedback
+                const newMarker = L.marker([data.latitude, data.longitude], { icon: campfireEmptyIcon }).addTo(map);
+                const key = data.latitude + ',' + data.longitude;
+                markersByKey[key] = newMarker;
                 newMarker.bindTooltip('<strong>' + (data.name || data.address) + '</strong><br>' + (data.address || ''));
                 newMarker.on('click', function() {
                     if (typeof showLocationItems === 'function') {
