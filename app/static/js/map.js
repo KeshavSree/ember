@@ -237,12 +237,12 @@ async function loadMapItems() {
             });
         });
 
-        // Also load standalone locations (no items yet)
+        // Also load standalone locations from Location table (no items yet)
         const locResponse = await fetch('/api/locations');
         const allLocations = await locResponse.json();
         allLocations.forEach(loc => {
             const key = `${loc.latitude},${loc.longitude}`;
-            if (!locations[key]) {
+            if (!locations[key] && !markersByKey[key]) {
                 const standaloneMarker = L.marker([loc.latitude, loc.longitude], { icon: campfireEmptyIcon }).addTo(map);
                 markersByKey[key] = standaloneMarker;
                 standaloneMarker.bindTooltip(`<strong>${loc.name || loc.address}</strong><br>${loc.address || ''}`);
@@ -253,6 +253,30 @@ async function loadMapItems() {
                 });
             }
         });
+
+        // Also load user's saved locations (grayed campfire for locations without items)
+        try {
+            const savedLocResponse = await fetch('/api/saved-locations');
+            if (savedLocResponse.ok) {
+                const savedLocations = await savedLocResponse.json();
+                savedLocations.forEach(loc => {
+                    const key = `${loc.latitude},${loc.longitude}`;
+                    if (!locations[key] && !markersByKey[key]) {
+                        const savedMarker = L.marker([loc.latitude, loc.longitude], { icon: campfireEmptyIcon }).addTo(map);
+                        markersByKey[key] = savedMarker;
+                        savedMarker.bindTooltip(`<strong>${loc.name || loc.address}</strong><br>${loc.address || ''}`);
+                        savedMarker.on('click', () => {
+                            if (typeof showLocationItems === 'function') {
+                                showLocationItems({ location_name: loc.name || loc.address, address: loc.address, items: [] });
+                            }
+                        });
+                    }
+                });
+            }
+        } catch (e) {
+            // User not logged in — skip saved locations
+        }
+
         // Populate sidebar with nearby items (only if not viewing a specific location)
         if (typeof _viewingLocation !== 'undefined' && !_viewingLocation && typeof showNearbyItems === 'function') showNearbyItems();
     } catch (err) {
