@@ -23,10 +23,11 @@ def load_user(user_id):
 
 
 # Register blueprints
-from .routes import users, health, items
+from .routes import users, health, items, locations
 app.register_blueprint(users.bp)
 app.register_blueprint(health.bp)
 app.register_blueprint(items.bp)
+app.register_blueprint(locations.bp)
 
 
 @app.route('/')
