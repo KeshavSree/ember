@@ -41,6 +41,23 @@ def main():
     # return render_template('main.html')
 
 
+@app.route('/create-listing')
+def create_listing():
+    return render_template('create_new_listing.html')
+
+@app.route('/edit-listing')
+def edit_listing():
+    return render_template('edit_item.html')
+
+@app.route('/account-info')
+def account_info():
+    return render_template('account_info.html')
+
+@app.route('/create-account')
+def create_account():
+    return render_template('create_account.html')
+
+
 @app.route('/api/items', methods=['GET'])
 def get_items():
     # Load items and 'eagerly' join their related location and category
